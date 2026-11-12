@@ -89,6 +89,7 @@ def main(argv: list[str] | None = None, client=None) -> int:
     ap.add_argument("--radice", default=str(Path(__file__).resolve().parents[2]))
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--solo-converti", action="store_true")
+    ap.add_argument("--verifica", action="store_true", help="solo lettura: controlla il collegamento a Meta")
     ap.add_argument("--now")
     a = ap.parse_args(argv)
 
@@ -96,6 +97,21 @@ def main(argv: list[str] | None = None, client=None) -> int:
     cliente = carica_config(radice / "config" / "clienti.json")[a.cliente]
     outbox = radice / "outbox" / cliente.slug
     ora = datetime.fromisoformat(a.now).replace(tzinfo=ROMA) if a.now else datetime.now(ROMA)
+
+    if a.verifica:
+        if client is None:
+            token = os.environ.get("META_PAGE_TOKEN", "")
+            if not token or not cliente.ig_user_id:
+                print("ERRORE: manca il token di Meta (META_PAGE_TOKEN) o l'id Instagram")
+                return 1
+            client = MetaClient(token, cliente.page_id, cliente.ig_user_id)
+        try:
+            r = client.verifica()
+        except MetaError as e:
+            print(f"ERRORE: Meta risponde: {e.messaggio}")
+            return 1
+        print(f"Collegamento riuscito. Pagina Facebook: {r['pagina']}. Account Instagram: {r['instagram']}.")
+        return 0
 
     if a.solo_converti:
         n = 0 if a.dry_run else _converti_tutto(outbox)

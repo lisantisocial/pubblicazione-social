@@ -108,6 +108,14 @@ def test_contenitore_in_errore_solleva():
 
 
 @responses.activate
+def test_verifica_legge_pagina_e_instagram_senza_pubblicare():
+    responses.add(responses.GET, "https://graph.facebook.com/v23.0/page1", json={"name": "Rigenera"})
+    responses.add(responses.GET, f"https://graph.facebook.com/v23.0/{IG}", json={"username": "rigenera_valcamonica"})
+    assert client().verifica() == {"pagina": "Rigenera", "instagram": "rigenera_valcamonica"}
+    assert all(c.request.method == "GET" for c in responses.calls)
+
+
+@responses.activate
 def test_didascalia_inviata_identica():
     testo = "Riga uno\n\n\nRiga due 🌿 è à\n"
     responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media", json={"id": "c1"})

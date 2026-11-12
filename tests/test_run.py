@@ -187,6 +187,18 @@ def test_solo_converti_trasforma_png_in_jpg(radice):
     assert (c / "2.jpg").exists() and not (c / "2.png").exists()
 
 
+def test_verifica_non_pubblica_e_restituisce_0(radice, capsys):
+    class Lettore(Finto):
+        def verifica(self):
+            return {"pagina": "Rigenera", "instagram": "rigenera_valcamonica"}
+
+    f = Lettore()
+    post(radice)
+    assert esegui(radice, "2026-11-18T16:30", f, "--verifica") == 0
+    assert f.calls == []
+    assert "Collegamento riuscito" in capsys.readouterr().out
+
+
 def test_senza_token_restituisce_1(radice):
     post(radice)
     assert esegui(radice, "2026-11-18T16:30", None, token=None) == 1

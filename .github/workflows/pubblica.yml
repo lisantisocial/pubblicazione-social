@@ -5,10 +5,14 @@ on:
     - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
-      prova_a_vuoto:
-        description: "Prova a vuoto: mostra cosa uscirebbe, senza pubblicare"
-        type: boolean
-        default: true
+      azione:
+        description: "Cosa fare quando lo avvii a mano"
+        type: choice
+        default: prova-a-vuoto
+        options:
+          - prova-a-vuoto
+          - verifica-meta
+          - pubblica
 
 permissions:
   contents: write
@@ -22,6 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: src
+      # Il timer (ogni 30 minuti) pubblica davvero; l'avvio a mano segue la scelta "azione"
+      AZIONE: ${{ github.event_name == 'schedule' && 'pubblica' || inputs.azione }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,14 +37,21 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      # Solo lettura: controlla che la chiave di Meta veda la pagina e l'account Instagram
+      - name: Verifica il collegamento a Meta
+        if: ${{ env.AZIONE == 'verifica-meta' }}
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+        run: python -m pubblica.run --cliente rigenera-lab --verifica
+
       # 1. Le grafiche che non sono JPEG diventano JPEG e vengono salvate online
       #    (Meta le scarica da GitHub, quindi devono già esserci prima di pubblicare)
       - name: Converti in JPEG
-        if: ${{ github.event_name == 'schedule' || inputs.prova_a_vuoto != true }}
+        if: ${{ env.AZIONE == 'pubblica' }}
         run: python -m pubblica.run --cliente rigenera-lab --solo-converti
 
       - name: Salva le conversioni
-        if: ${{ github.event_name == 'schedule' || inputs.prova_a_vuoto != true }}
+        if: ${{ env.AZIONE == 'pubblica' }}
         run: |
           git config user.name "pubblicazione-automatica"
           git config user.email "actions@users.noreply.github.com"
@@ -49,17 +62,19 @@ jobs:
             git push
           fi
 
-      # 2. Pubblica ciò che è dovuto in questo momento
+      # 2. Pubblica ciò che è dovuto in questo momento (o, in prova a vuoto, lo mostra soltanto)
       - name: Pubblica
         id: pubblica
+        if: ${{ env.AZIONE != 'verifica-meta' }}
         continue-on-error: true
         env:
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
-          PROVA: ${{ github.event_name == 'workflow_dispatch' && inputs.prova_a_vuoto == true && '--dry-run' || '' }}
+          PROVA: ${{ env.AZIONE == 'prova-a-vuoto' && '--dry-run' || '' }}
         run: python -m pubblica.run --cliente rigenera-lab $PROVA
 
       # 3. Salva cosa è uscito (cartelle spostate in published/, stato, registro delle stories)
       - name: Salva lo stato
+        if: ${{ env.AZIONE == 'pubblica' }}
         run: |
           git config user.name "pubblicazione-automatica"
           git config user.email "actions@users.noreply.github.com"

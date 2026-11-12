@@ -49,6 +49,12 @@ class MetaClient:
         params = {**(params or {}), "access_token": self.token}
         return self._controlla(self.http.get(f"{GRAPH}/{percorso}", params=params, timeout=60))
 
+    def verifica(self) -> dict:
+        """Solo lettura: controlla che la chiave veda la pagina e l'account Instagram."""
+        pagina = self._get(self.page_id, {"fields": "name"})["name"]
+        instagram = self._get(self.ig_user_id, {"fields": "username"})["username"]
+        return {"pagina": pagina, "instagram": instagram}
+
     # ---- Facebook (pagina) --------------------------------------------------
     def fb_post(self, urls: list[str], testo: str) -> str:
         if len(urls) == 1:
