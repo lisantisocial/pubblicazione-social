@@ -64,6 +64,8 @@ def cosa_e_dovuto(cliente: Cliente, radice_outbox: Path, ora: datetime) -> Dovut
     cartella_datate = radice / "stories-datate"
     if cartella_datate.exists():
         for f in sorted(p for p in cartella_datate.iterdir() if p.is_file() and p.name != ".gitkeep"):
+            if f.name.endswith(".avvisato") or (f.parent / (f.name + ".avvisato")).exists():
+                continue
             try:
                 s = leggi_story_datata(f)
             except ContenutoNonValido as e:

@@ -1,0 +1,78 @@
+name: Pubblica
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      prova_a_vuoto:
+        description: "Prova a vuoto: mostra cosa uscirebbe, senza pubblicare"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pubblica
+  cancel-in-progress: false
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      # 1. Le grafiche che non sono JPEG diventano JPEG e vengono salvate online
+      #    (Meta le scarica da GitHub, quindi devono già esserci prima di pubblicare)
+      - name: Converti in JPEG
+        if: ${{ github.event_name == 'schedule' || inputs.prova_a_vuoto != true }}
+        run: python -m pubblica.run --cliente rigenera-lab --solo-converti
+
+      - name: Salva le conversioni
+        if: ${{ github.event_name == 'schedule' || inputs.prova_a_vuoto != true }}
+        run: |
+          git config user.name "pubblicazione-automatica"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Converte le grafiche in JPEG"
+            git pull --rebase
+            git push
+          fi
+
+      # 2. Pubblica ciò che è dovuto in questo momento
+      - name: Pubblica
+        id: pubblica
+        continue-on-error: true
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          PROVA: ${{ github.event_name == 'workflow_dispatch' && inputs.prova_a_vuoto == true && '--dry-run' || '' }}
+        run: python -m pubblica.run --cliente rigenera-lab $PROVA
+
+      # 3. Salva cosa è uscito (cartelle spostate in published/, stato, registro delle stories)
+      - name: Salva lo stato
+        run: |
+          git config user.name "pubblicazione-automatica"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Aggiorna contenuti pubblicati e stato"
+            git pull --rebase
+            git push
+          fi
+
+      # 4. Se qualcosa non è andato bene il giro risulta fallito: GitHub manda l'email di avviso
+      - name: Esito
+        if: ${{ steps.pubblica.outcome == 'failure' }}
+        run: |
+          echo "Almeno un contenuto non è uscito: leggi il registro del passo Pubblica."
+          exit 1
