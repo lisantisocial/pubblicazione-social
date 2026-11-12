@@ -34,13 +34,13 @@ def _data_e_fascia(nome: str) -> tuple[date, tuple[int, int]]:
     m = NOME_SICURO.match(nome)
     if not m:
         raise ContenutoNonValido(
-            f"il nome Â«{nome}Â» non Ã¨ corretto: serve AAAA-MM-GG_16-19_titolo-in-minuscolo-con-trattini"
+            f"il nome «{nome}» non è corretto: serve AAAA-MM-GG_16-19_titolo-in-minuscolo-con-trattini"
         )
     a, mese, g, i, f = (int(x) for x in m.groups())
     try:
         return date(a, mese, g), (i, f)
     except ValueError:
-        raise ContenutoNonValido(f"la data nel nome Â«{nome}Â» non esiste")
+        raise ContenutoNonValido(f"la data nel nome «{nome}» non esiste")
 
 
 def leggi_contenuto(cartella: Path) -> Contenuto:
@@ -65,16 +65,16 @@ def leggi_contenuto(cartella: Path) -> Contenuto:
         elif f.suffix.lower() in VIDEO:
             video.append(f)
         else:
-            raise ContenutoNonValido(f"{cartella.name}: file non riconosciuto Â«{f.name}Â»")
+            raise ContenutoNonValido(f"{cartella.name}: file non riconosciuto «{f.name}»")
 
     if video and immagini:
         raise ContenutoNonValido(f"{cartella.name}: ci sono sia video sia immagini")
     if len(video) > 1:
-        raise ContenutoNonValido(f"{cartella.name}: ci sono piÃ¹ video, ne serve uno solo")
+        raise ContenutoNonValido(f"{cartella.name}: ci sono più video, ne serve uno solo")
     if not video and not immagini:
-        raise ContenutoNonValido(f"{cartella.name}: non c'Ã¨ nessuna immagine nÃ© video")
+        raise ContenutoNonValido(f"{cartella.name}: non c'è nessuna immagine né video")
     if len(immagini) > 10:
-        raise ContenutoNonValido(f"{cartella.name}: un carosello puÃ² avere al massimo 10 immagini")
+        raise ContenutoNonValido(f"{cartella.name}: un carosello può avere al massimo 10 immagini")
 
     immagini.sort(key=lambda p: int(p.stem))
     return Contenuto(
