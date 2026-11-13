@@ -50,3 +50,13 @@ def test_token_per_preferisce_il_nuovo_segreto(monkeypatch):
     monkeypatch.setenv("META_PAGE_TOKENS", json.dumps({"rigenera-lab": "t-nuovo"}))
     monkeypatch.setenv("META_PAGE_TOKEN", "t-vecchio")
     assert token_per("rigenera-lab") == "t-nuovo"
+
+
+def test_id_pagine_dei_permessi():
+    from pubblica.chiavi import id_pagine_dei_permessi
+    d = {"granular_scopes": [
+        {"scope": "pages_show_list", "target_ids": ["1", "2"]},
+        {"scope": "pages_manage_posts", "target_ids": ["2", "3"]},
+        {"scope": "instagram_basic", "target_ids": ["99"]},
+    ]}
+    assert id_pagine_dei_permessi(d) == ["1", "2", "3"]

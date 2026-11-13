@@ -2,7 +2,60 @@
   "rigenera-lab": {
     "page_id": "1932726716776796",
     "ig_user_id": "17841421861526179",
-    "giorni_story": [0, 2, 3, 4],
-    "fascia_story": [10, 15]
+    "giorni_story": [
+      0,
+      2,
+      3,
+      4
+    ],
+    "fascia_story": [
+      10,
+      15
+    ]
+  },
+  "rigenera-active": {
+    "page_id": "103243688092892",
+    "ig_user_id": "17841436962682521",
+    "giorni_story": [],
+    "fascia_story": [
+      10,
+      15
+    ]
+  },
+  "trattoria-la-brasera": {
+    "page_id": "266404753507308",
+    "ig_user_id": "17841408592384989",
+    "giorni_story": [],
+    "fascia_story": [
+      10,
+      15
+    ]
+  },
+  "poliambulatorio-benessere": {
+    "page_id": "1185573968130096",
+    "ig_user_id": "17841437228153416",
+    "giorni_story": [],
+    "fascia_story": [
+      10,
+      15
+    ]
+  },
+  "arcamed": {
+    "page_id": "563627913490059",
+    "ig_user_id": "17841470894062766",
+    "giorni_story": [],
+    "fascia_story": [
+      10,
+      15
+    ]
+  },
+  "vyva-clinic": {
+    "page_id": "1080895998450193",
+    "ig_user_id": "17841417094013514",
+    "giorni_story": [],
+    "fascia_story": [
+      10,
+      15
+    ]
   }
 }
