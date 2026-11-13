@@ -19,8 +19,8 @@ def carica_config(percorso: Path) -> dict[str, Cliente]:
             slug=slug,
             page_id=c["page_id"],
             ig_user_id=c.get("ig_user_id", ""),
-            giorni_story=list(c["giorni_story"]),
-            fascia_story=tuple(c["fascia_story"]),
+            giorni_story=list(c.get("giorni_story", [])),  # vuoto = nessuna story dalla scorta
+            fascia_story=tuple(c.get("fascia_story", [10, 15])),
         )
         for slug, c in dati.items()
     }

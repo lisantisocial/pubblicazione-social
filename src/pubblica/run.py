@@ -1,6 +1,6 @@
 """Un giro di pubblicazione: legge le cartelle, pubblica ciò che è dovuto, sposta ciò che è uscito.
 
-Uso: python -m pubblica.run --cliente rigenera-lab [--dry-run] [--solo-converti] [--now AAAA-MM-GGTHH:MM]
+Uso: python -m pubblica.run --cliente <cliente> [--dry-run] [--solo-converti] [--now AAAA-MM-GGTHH:MM]
 Codice di uscita 0 = tutto bene, 1 = almeno un problema (GitHub manda l'email di avviso).
 """
 import argparse
@@ -83,6 +83,19 @@ def _pubblica_story(client, radice: Path, file: Path, stato: dict, errori: list[
     _tenta(stato, "fb", lambda: client.fb_story(url, video), errori, nome)
 
 
+def token_per(slug: str) -> str:
+    """Chiave di pagina del cliente: dal segreto META_PAGE_TOKENS ({cliente: chiave}).
+    Per Rigenera Lab vale ancora anche il vecchio segreto META_PAGE_TOKEN."""
+    try:
+        chiavi = json.loads(os.environ.get("META_PAGE_TOKENS") or "{}")
+    except ValueError:
+        chiavi = {}
+    token = chiavi.get(slug, "") if isinstance(chiavi, dict) else ""
+    if not token and slug == "rigenera-lab":
+        token = os.environ.get("META_PAGE_TOKEN", "")
+    return token
+
+
 def main(argv: list[str] | None = None, client=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--cliente", required=True)
@@ -100,9 +113,9 @@ def main(argv: list[str] | None = None, client=None) -> int:
 
     if a.verifica:
         if client is None:
-            token = os.environ.get("META_PAGE_TOKEN", "")
+            token = token_per(cliente.slug)
             if not token or not cliente.ig_user_id:
-                print("ERRORE: manca il token di Meta (META_PAGE_TOKEN) o l'id Instagram")
+                print(f"ERRORE ({cliente.slug}): manca la chiave di Meta in META_PAGE_TOKENS o l'id Instagram")
                 return 1
             client = MetaClient(token, cliente.page_id, cliente.ig_user_id)
         try:
@@ -110,7 +123,7 @@ def main(argv: list[str] | None = None, client=None) -> int:
         except MetaError as e:
             print(f"ERRORE: Meta risponde: {e.messaggio}")
             return 1
-        print(f"Collegamento riuscito. Pagina Facebook: {r['pagina']}. Account Instagram: {r['instagram']}.")
+        print(f"{cliente.slug}: collegamento riuscito. Pagina Facebook: {r['pagina']}. Account Instagram: {r['instagram']}.")
         return 0
 
     if a.solo_converti:
@@ -148,9 +161,9 @@ def main(argv: list[str] | None = None, client=None) -> int:
         return 1 if errori else 0
 
     if client is None and (dovuti.post or dovuti.story_datata or dovuti.story_da_scorta):
-        token = os.environ.get("META_PAGE_TOKEN", "")
+        token = token_per(cliente.slug)
         if not token or not cliente.ig_user_id:
-            errori.append("Manca il token di Meta (META_PAGE_TOKEN) o l'id Instagram nel file clienti.json")
+            errori.append(f"{cliente.slug}: manca la chiave di Meta in META_PAGE_TOKENS o l'id Instagram nel file clienti.json")
             for e in errori:
                 print("ERRORE:", e)
             return 1

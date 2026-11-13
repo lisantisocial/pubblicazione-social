@@ -196,7 +196,7 @@ def test_verifica_non_pubblica_e_restituisce_0(radice, capsys):
     post(radice)
     assert esegui(radice, "2026-11-18T16:30", f, "--verifica") == 0
     assert f.calls == []
-    assert "Collegamento riuscito" in capsys.readouterr().out
+    assert "rigenera-lab: collegamento riuscito" in capsys.readouterr().out
 
 
 def test_senza_token_restituisce_1(radice):
