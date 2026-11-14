@@ -128,3 +128,26 @@ def test_scorta_generale_nei_suoi_giorni_e_mai_il_mazzo(tmp_path):
     assert not d.story_da_scorta
     d = cosa_e_dovuto(CON_MAZZO, tmp_path, ora("2026-11-17T18:00"))  # martedì
     assert not d.story_da_scorta
+
+
+DUE_AL_GIORNO = Cliente("benessere", "1", "2", [0, 1, 2, 3, 4], (14, 21), stories_al_giorno=2)
+
+
+def test_due_stories_al_giorno_dividono_la_fascia(tmp_path):
+    # mercoledì 18 novembre 2026: 14-17:30 prima story, 17:30-21 seconda
+    d = cosa_e_dovuto(DUE_AL_GIORNO, tmp_path, ora("2026-11-18T14:00"))
+    assert d.story_da_scorta and d.turno_scorta == 0
+    d = cosa_e_dovuto(DUE_AL_GIORNO, tmp_path, ora("2026-11-18T17:29"))
+    assert d.turno_scorta == 0
+    d = cosa_e_dovuto(DUE_AL_GIORNO, tmp_path, ora("2026-11-18T17:30"))
+    assert d.story_da_scorta and d.turno_scorta == 1
+    d = cosa_e_dovuto(DUE_AL_GIORNO, tmp_path, ora("2026-11-18T21:00"))
+    assert not d.story_da_scorta
+    d = cosa_e_dovuto(DUE_AL_GIORNO, tmp_path, ora("2026-11-21T15:00"))  # sabato
+    assert not d.story_da_scorta
+
+
+def test_due_al_giorno_con_datata_ne_esce_una_sola_dalla_scorta(tmp_path):
+    _story_datata(tmp_path, "2026-11-18_10-12_evento.jpg")
+    d = cosa_e_dovuto(DUE_AL_GIORNO, tmp_path, ora("2026-11-18T20:00"))
+    assert d.story_da_scorta and d.turno_scorta == 0

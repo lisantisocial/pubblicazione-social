@@ -225,3 +225,18 @@ def test_mazzo_sottocartella_con_registro_proprio(radice):
     st = json.loads((radice / "state" / "rigenera-lab-stories.json").read_text())
     assert len(st["registri"]["01-carosello"]["uscite"]) == 2
     assert len(st["registro"]["uscite"]) == 1
+
+
+def test_due_stories_al_giorno_diverse(radice):
+    cfg = radice / "config" / "clienti.json"
+    dati = json.loads(cfg.read_text())
+    dati["rigenera-lab"].update({"fascia_story": [14, 21], "stories_al_giorno": 2})
+    cfg.write_text(json.dumps(dati))
+    scorta(radice, 5)
+    f = Finto()
+    for t in ("14:00", "14:30", "17:30", "18:00", "20:30"):
+        assert esegui(radice, "2026-11-18T" + t, f) == 0
+    usate = [c[1] for c in f.calls if c[0] == "ig_story"]
+    assert len(usate) == 2 and len(set(usate)) == 2
+    st = json.loads((radice / "state" / "rigenera-lab-stories.json").read_text())
+    assert set(st["giorni"]) == {"2026-11-18", "2026-11-18#2"}

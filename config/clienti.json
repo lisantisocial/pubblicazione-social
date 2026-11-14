@@ -45,11 +45,18 @@
   "poliambulatorio-benessere": {
     "page_id": "1185573968130096",
     "ig_user_id": "17841437228153416",
-    "giorni_story": [],
+    "giorni_story": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
     "fascia_story": [
-      10,
-      15
-    ]
+      14,
+      21
+    ],
+    "stories_al_giorno": 2
   },
   "arcamed": {
     "page_id": "563627913490059",

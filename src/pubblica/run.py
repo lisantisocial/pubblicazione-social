@@ -155,7 +155,8 @@ def main(argv: list[str] | None = None, client=None) -> int:
             cartella = outbox / "stories-scorta" / (dovuti.mazzo_scorta or "")
             n = len([f for f in cartella.iterdir() if f.is_file() and f.name != ".gitkeep"]) if cartella.exists() else 0
             quale = f"dal mazzo «{dovuti.mazzo_scorta}»" if dovuti.mazzo_scorta else "dalla scorta"
-            print(f"[prova a vuoto] uscirebbe ora una story {quale} ({n} grafiche)")
+            turno = f", story n. {dovuti.turno_scorta + 1} del giorno" if cliente.stories_al_giorno > 1 and not dovuti.mazzo_scorta else ""
+            print(f"[prova a vuoto] uscirebbe ora una story {quale} ({n} grafiche{turno})")
         if not (dovuti.post or dovuti.story_datata or dovuti.story_da_scorta):
             print("[prova a vuoto] nessun contenuto dovuto in questo momento")
         for e in errori:
@@ -197,7 +198,9 @@ def main(argv: list[str] | None = None, client=None) -> int:
 
     if dovuti.story_da_scorta:
         oggi = ora.date().isoformat()
-        voce = st["giorni"].get(oggi)
+        # la prima story del giorno resta sotto la data (come prima), le altre sotto data#2, data#3…
+        chiave = oggi if dovuti.turno_scorta == 0 else f"{oggi}#{dovuti.turno_scorta + 1}"
+        voce = st["giorni"].get(chiave)
         if voce and voce.get("ig") and voce.get("fb"):
             pass  # già uscita oggi su entrambe
         else:
@@ -217,7 +220,7 @@ def main(argv: list[str] | None = None, client=None) -> int:
                 print(f"Pubblico la story dalla scorta: {nome}")
                 _pubblica_story(client, radice, cartella_scorta / nome, voce, errori, f"story {nome}")
                 if voce.get("ig") or voce.get("fb"):
-                    st["giorni"][oggi] = voce
+                    st["giorni"][chiave] = voce
                     if mazzo:
                         st["registri"][mazzo] = nuovo_reg
                     else:

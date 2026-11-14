@@ -23,11 +23,13 @@ class Dovuti:
     story_da_scorta: bool = False
     # quale mazzo della scorta: "" = file sciolti di stories-scorta, altrimenti il nome della sottocartella
     mazzo_scorta: str | None = None
+    # quale delle stories del giorno (0 = la prima), quando ne escono più di una
+    turno_scorta: int = 0
     scaduti: list[Path] = field(default_factory=list)
     non_validi: list[tuple[Path, str]] = field(default_factory=list)
 
 
-def stato_fascia(ora: datetime, giorno: date, fascia: tuple[int, int]) -> Literal["presto", "ora", "scaduta"]:
+def stato_fascia(ora: datetime, giorno: date, fascia: tuple[float, float]) -> Literal["presto", "ora", "scaduta"]:
     """La fascia è [inizio, fine) all'ora di Roma."""
     ora = ora.astimezone(ROMA)
     mezzanotte = datetime(giorno.year, giorno.month, giorno.day, tzinfo=ROMA)
@@ -81,13 +83,25 @@ def cosa_e_dovuto(cliente: Cliente, radice_outbox: Path, ora: datetime) -> Dovut
             elif stato == "scaduta":
                 dovuti.scaduti.append(f)
 
-    if not ce_datata_oggi:
-        # prima i mazzi con regole proprie, poi la scorta generale; al massimo una story al giorno
-        regole = list(cliente.mazzi_story.items()) + [("", (cliente.giorni_story, cliente.fascia_story))]
-        for nome, (giorni, fascia) in regole:
-            if oggi.weekday() in giorni and stato_fascia(ora, oggi, fascia) == "ora":
-                dovuti.story_da_scorta = True
-                dovuti.mazzo_scorta = nome
+    # prima i mazzi con regole proprie (una story), poi la scorta generale (stories_al_giorno);
+    # una story datata prende il posto di una di quelle della scorta
+    quante = cliente.stories_al_giorno - (1 if ce_datata_oggi else 0)
+    regole = [(nome, g, f, 1) for nome, (g, f) in cliente.mazzi_story.items()]
+    regole.append(("", cliente.giorni_story, cliente.fascia_story, cliente.stories_al_giorno))
+    if quante > 0:
+        for nome, giorni, fascia, n in regole:
+            n = n - (1 if ce_datata_oggi else 0)
+            if n <= 0 or oggi.weekday() not in giorni:
+                continue
+            passo = (fascia[1] - fascia[0]) / n
+            for turno in range(n):
+                parte = (fascia[0] + passo * turno, fascia[0] + passo * (turno + 1))
+                if stato_fascia(ora, oggi, parte) == "ora":
+                    dovuti.story_da_scorta = True
+                    dovuti.mazzo_scorta = nome
+                    dovuti.turno_scorta = turno
+                    break
+            if dovuti.story_da_scorta:
                 break
 
     return dovuti

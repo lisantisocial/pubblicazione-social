@@ -12,6 +12,8 @@ class Cliente:
     fascia_story: tuple[int, int]
     # sottocartelle di stories-scorta con giorni e fascia propri: {nome: (giorni, fascia)}
     mazzi_story: dict[str, tuple[list[int], tuple[int, int]]] = field(default_factory=dict)
+    # quante stories dalla scorta generale nei giorni previsti: la fascia si divide in parti uguali
+    stories_al_giorno: int = 1
 
 
 def carica_config(percorso: Path) -> dict[str, Cliente]:
@@ -27,6 +29,7 @@ def carica_config(percorso: Path) -> dict[str, Cliente]:
                 nome: (list(m.get("giorni", [])), tuple(m.get("fascia", [10, 15])))
                 for nome, m in c.get("mazzi_story", {}).items()
             },
+            stories_al_giorno=max(1, int(c.get("stories_al_giorno", 1))),
         )
         for slug, c in dati.items()
     }
