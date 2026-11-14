@@ -152,8 +152,10 @@ def main(argv: list[str] | None = None, client=None) -> int:
         if dovuti.story_datata:
             print(f"[prova a vuoto] uscirebbe ora la story datata: {dovuti.story_datata.file.name}")
         if dovuti.story_da_scorta:
-            n = len([f for f in (outbox / 'stories-scorta').iterdir() if f.name != ".gitkeep"])
-            print(f"[prova a vuoto] uscirebbe ora una story dalla scorta ({n} grafiche)")
+            cartella = outbox / "stories-scorta" / (dovuti.mazzo_scorta or "")
+            n = len([f for f in cartella.iterdir() if f.is_file() and f.name != ".gitkeep"]) if cartella.exists() else 0
+            quale = f"dal mazzo «{dovuti.mazzo_scorta}»" if dovuti.mazzo_scorta else "dalla scorta"
+            print(f"[prova a vuoto] uscirebbe ora una story {quale} ({n} grafiche)")
         if not (dovuti.post or dovuti.story_datata or dovuti.story_da_scorta):
             print("[prova a vuoto] nessun contenuto dovuto in questo momento")
         for e in errori:
@@ -199,22 +201,31 @@ def main(argv: list[str] | None = None, client=None) -> int:
         if voce and voce.get("ig") and voce.get("fb"):
             pass  # già uscita oggi su entrambe
         else:
-            cartella_scorta = outbox / "stories-scorta"
-            nomi = sorted(f.name for f in cartella_scorta.iterdir() if f.is_file() and f.name != ".gitkeep")
+            mazzo = dovuti.mazzo_scorta or ""
+            if voce and voce.get("mazzo", "") != mazzo:
+                voce = None  # tentativo fallito di un altro mazzo: si riparte da questo
+            cartella_scorta = outbox / "stories-scorta" / mazzo if mazzo else outbox / "stories-scorta"
+            nomi = sorted(f.name for f in cartella_scorta.iterdir() if f.is_file() and f.name != ".gitkeep") if cartella_scorta.exists() else []
+            vuoto = {"mazzo": [], "ultima": None, "uscite": []}
+            registro = st.setdefault("registri", {}).get(mazzo, vuoto) if mazzo else st["registro"]
             try:
                 if voce:
-                    nome, nuovo_reg = voce["file"], st["registro"]
+                    nome, nuovo_reg = voce["file"], registro
                 else:
-                    nome, nuovo_reg = prossima_story(nomi, st["registro"], random.Random(), oggi)
-                    voce = {"file": nome}
+                    nome, nuovo_reg = prossima_story(nomi, registro, random.Random(), oggi)
+                    voce = {"file": nome, "mazzo": mazzo} if mazzo else {"file": nome}
                 print(f"Pubblico la story dalla scorta: {nome}")
                 _pubblica_story(client, radice, cartella_scorta / nome, voce, errori, f"story {nome}")
                 if voce.get("ig") or voce.get("fb"):
                     st["giorni"][oggi] = voce
-                    st["registro"] = nuovo_reg
+                    if mazzo:
+                        st["registri"][mazzo] = nuovo_reg
+                    else:
+                        st["registro"] = nuovo_reg
                 _scrivi_json(file_stories, st)
             except ScortaVuota:
-                errori.append("La scorta delle stories è vuota: oggi non esce nessuna story")
+                quale = f"Il mazzo di stories «{mazzo}» è vuoto" if mazzo else "La scorta delle stories è vuota"
+                errori.append(f"{quale}: oggi non esce nessuna story")
 
     for e in errori:
         print("ERRORE:", e)

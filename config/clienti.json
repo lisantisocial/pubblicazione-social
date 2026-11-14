@@ -20,11 +20,27 @@
   "trattoria-la-brasera": {
     "page_id": "266404753507308",
     "ig_user_id": "17841408592384989",
-    "giorni_story": [],
+    "giorni_story": [
+      2,
+      3,
+      4
+    ],
     "fascia_story": [
-      10,
-      15
-    ]
+      17,
+      21
+    ],
+    "mazzi_story": {
+      "01-carosello": {
+        "giorni": [
+          5,
+          6
+        ],
+        "fascia": [
+          11,
+          19
+        ]
+      }
+    }
   },
   "poliambulatorio-benessere": {
     "page_id": "1185573968130096",

@@ -202,3 +202,26 @@ def test_verifica_non_pubblica_e_restituisce_0(radice, capsys):
 def test_senza_token_restituisce_1(radice):
     post(radice)
     assert esegui(radice, "2026-11-18T16:30", None, token=None) == 1
+
+
+def test_mazzo_sottocartella_con_registro_proprio(radice):
+    cfg = radice / "config" / "clienti.json"
+    dati = json.loads(cfg.read_text())
+    dati["rigenera-lab"]["mazzi_story"] = {"01-carosello": {"giorni": [5, 6], "fascia": [11, 19]}}
+    cfg.write_text(json.dumps(dati), encoding="utf-8")
+    scorta(radice)
+    m = radice / "outbox" / "rigenera-lab" / "stories-scorta" / "01-carosello"
+    m.mkdir()
+    for i in range(2):
+        Image.new("RGB", (5, 5)).save(m / f"c{i}.jpg")
+    f = Finto()
+    assert esegui(radice, "2026-11-21T11:30", f) == 0  # sabato
+    assert esegui(radice, "2026-11-22T12:00", f) == 0  # domenica
+    usate = [c[1] for c in f.calls if c[0] == "ig_story"]
+    assert len(usate) == 2 and len(set(usate)) == 2
+    assert all(u.startswith(BASE + "outbox/rigenera-lab/stories-scorta/01-carosello/c") for u in usate)
+    assert esegui(radice, "2026-11-23T11:00", f) == 0  # lunedì: scorta generale, non il carosello
+    assert "/stories-scorta/s" in f.calls[-2][1]
+    st = json.loads((radice / "state" / "rigenera-lab-stories.json").read_text())
+    assert len(st["registri"]["01-carosello"]["uscite"]) == 2
+    assert len(st["registro"]["uscite"]) == 1

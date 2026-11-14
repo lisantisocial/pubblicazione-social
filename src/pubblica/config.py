@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
@@ -10,6 +10,8 @@ class Cliente:
     ig_user_id: str
     giorni_story: list[int]  # lunedì = 0
     fascia_story: tuple[int, int]
+    # sottocartelle di stories-scorta con giorni e fascia propri: {nome: (giorni, fascia)}
+    mazzi_story: dict[str, tuple[list[int], tuple[int, int]]] = field(default_factory=dict)
 
 
 def carica_config(percorso: Path) -> dict[str, Cliente]:
@@ -21,6 +23,10 @@ def carica_config(percorso: Path) -> dict[str, Cliente]:
             ig_user_id=c.get("ig_user_id", ""),
             giorni_story=list(c.get("giorni_story", [])),  # vuoto = nessuna story dalla scorta
             fascia_story=tuple(c.get("fascia_story", [10, 15])),
+            mazzi_story={
+                nome: (list(m.get("giorni", [])), tuple(m.get("fascia", [10, 15])))
+                for nome, m in c.get("mazzi_story", {}).items()
+            },
         )
         for slug, c in dati.items()
     }

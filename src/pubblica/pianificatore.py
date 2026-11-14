@@ -21,6 +21,8 @@ class Dovuti:
     post: list[Contenuto] = field(default_factory=list)
     story_datata: StoryDatata | None = None
     story_da_scorta: bool = False
+    # quale mazzo della scorta: "" = file sciolti di stories-scorta, altrimenti il nome della sottocartella
+    mazzo_scorta: str | None = None
     scaduti: list[Path] = field(default_factory=list)
     non_validi: list[tuple[Path, str]] = field(default_factory=list)
 
@@ -79,11 +81,13 @@ def cosa_e_dovuto(cliente: Cliente, radice_outbox: Path, ora: datetime) -> Dovut
             elif stato == "scaduta":
                 dovuti.scaduti.append(f)
 
-    if (
-        not ce_datata_oggi
-        and oggi.weekday() in cliente.giorni_story
-        and stato_fascia(ora, oggi, cliente.fascia_story) == "ora"
-    ):
-        dovuti.story_da_scorta = True
+    if not ce_datata_oggi:
+        # prima i mazzi con regole proprie, poi la scorta generale; al massimo una story al giorno
+        regole = list(cliente.mazzi_story.items()) + [("", (cliente.giorni_story, cliente.fascia_story))]
+        for nome, (giorni, fascia) in regole:
+            if oggi.weekday() in giorni and stato_fascia(ora, oggi, fascia) == "ora":
+                dovuti.story_da_scorta = True
+                dovuti.mazzo_scorta = nome
+                break
 
     return dovuti

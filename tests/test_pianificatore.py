@@ -107,3 +107,24 @@ def test_story_datata_scaduta_va_in_scaduti(tmp_path):
     f = _story_datata(tmp_path, "2026-11-16_10-15_evento.jpg")
     d = cosa_e_dovuto(CLIENTE, tmp_path, ora("2026-11-18T11:00"))
     assert d.story_datata is None and f in d.scaduti
+
+
+CON_MAZZO = Cliente("brasera", "1", "2", [2, 3, 4], (17, 21), {"01-carosello": ([5, 6], (11, 19))})
+
+
+def test_mazzo_esce_nei_suoi_giorni_e_fascia(tmp_path):
+    # sabato 21 novembre 2026
+    d = cosa_e_dovuto(CON_MAZZO, tmp_path, ora("2026-11-21T11:30"))
+    assert d.story_da_scorta and d.mazzo_scorta == "01-carosello"
+    d = cosa_e_dovuto(CON_MAZZO, tmp_path, ora("2026-11-22T19:10"))  # domenica, fuori fascia
+    assert not d.story_da_scorta and d.mazzo_scorta is None
+
+
+def test_scorta_generale_nei_suoi_giorni_e_mai_il_mazzo(tmp_path):
+    # mercoledì 18 novembre 2026
+    d = cosa_e_dovuto(CON_MAZZO, tmp_path, ora("2026-11-18T17:30"))
+    assert d.story_da_scorta and d.mazzo_scorta == ""
+    d = cosa_e_dovuto(CON_MAZZO, tmp_path, ora("2026-11-18T12:00"))
+    assert not d.story_da_scorta
+    d = cosa_e_dovuto(CON_MAZZO, tmp_path, ora("2026-11-17T18:00"))  # martedì
+    assert not d.story_da_scorta
