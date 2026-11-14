@@ -1,0 +1,45 @@
+{
+  "registro": {
+    "mazzo": [],
+    "ultima": null,
+    "uscite": []
+  },
+  "giorni": {
+    "2026-11-14": {
+      "file": "70.jpg",
+      "mazzo": "01-carosello",
+      "ig": "18116220797090990",
+      "fb": "1852703586152136"
+    }
+  },
+  "datate": {},
+  "registri": {
+    "01-carosello": {
+      "mazzo": [
+        "PXL_20250509_183112479.jpg",
+        "PXL_20250509_183345333.jpg",
+        "PXL_20250509_183009580.jpg",
+        "PXL_20250509_183354561.jpg",
+        "60.jpg",
+        "PXL_20250509_182949046.PORTRAIT.jpg",
+        "PXL_20250509_183420343.jpg",
+        "PXL_20250509_183021280.PORTRAIT.jpg",
+        "PXL_20250509_183425390.jpg",
+        "PXL_20250509_183114441.jpg",
+        "PXL_20250509_183431036.PORTRAIT.jpg",
+        "PXL_20250509_183436092.PORTRAIT.jpg",
+        "PXL_20250509_183026784.PORTRAIT.jpg",
+        "PXL_20250509_183015715.jpg",
+        "48.jpg",
+        "PXL_20250509_183107126.jpg"
+      ],
+      "ultima": "70.jpg",
+      "uscite": [
+        {
+          "file": "70.jpg",
+          "data": "2026-11-14"
+        }
+      ]
+    }
+  }
+}
