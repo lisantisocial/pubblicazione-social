@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 
@@ -14,6 +15,12 @@ class Cliente:
     mazzi_story: dict[str, tuple[list[int], tuple[int, int]]] = field(default_factory=dict)
     # quante stories dalla scorta generale nei giorni previsti: la fascia si divide in parti uguali
     stories_al_giorno: int = 1
+    # periodo in cui un mazzo è attivo: {nome: (dal, al)}, estremi compresi; None = senza limite
+    periodi_mazzi: dict[str, tuple[date | None, date | None]] = field(default_factory=dict)
+
+
+def _data(v):
+    return date.fromisoformat(v) if v else None
 
 
 def carica_config(percorso: Path) -> dict[str, Cliente]:
@@ -30,6 +37,11 @@ def carica_config(percorso: Path) -> dict[str, Cliente]:
                 for nome, m in c.get("mazzi_story", {}).items()
             },
             stories_al_giorno=max(1, int(c.get("stories_al_giorno", 1))),
+            periodi_mazzi={
+                nome: (_data(m.get("dal")), _data(m.get("al")))
+                for nome, m in c.get("mazzi_story", {}).items()
+                if m.get("dal") or m.get("al")
+            },
         )
         for slug, c in dati.items()
     }

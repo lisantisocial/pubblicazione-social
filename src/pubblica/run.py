@@ -198,8 +198,12 @@ def main(argv: list[str] | None = None, client=None) -> int:
 
     if dovuti.story_da_scorta:
         oggi = ora.date().isoformat()
-        # la prima story del giorno resta sotto la data (come prima), le altre sotto data#2, data#3…
-        chiave = oggi if dovuti.turno_scorta == 0 else f"{oggi}#{dovuti.turno_scorta + 1}"
+        # scorta generale: la prima story sotto la data, le altre sotto data#2, data#3…
+        # mazzi: sotto data@mazzo, così escono in aggiunta alla scorta generale
+        if dovuti.mazzo_scorta:
+            chiave = f"{oggi}@{dovuti.mazzo_scorta}"
+        else:
+            chiave = oggi if dovuti.turno_scorta == 0 else f"{oggi}#{dovuti.turno_scorta + 1}"
         voce = st["giorni"].get(chiave)
         if voce and voce.get("ig") and voce.get("fb"):
             pass  # già uscita oggi su entrambe

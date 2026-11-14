@@ -83,10 +83,15 @@ def cosa_e_dovuto(cliente: Cliente, radice_outbox: Path, ora: datetime) -> Dovut
             elif stato == "scaduta":
                 dovuti.scaduti.append(f)
 
-    # prima i mazzi con regole proprie (una story), poi la scorta generale (stories_al_giorno);
-    # una story datata prende il posto di una di quelle della scorta
+    # prima i mazzi con regole proprie (una story, in aggiunta alla scorta generale), poi la
+    # scorta generale (stories_al_giorno); una story datata prende il posto di una di quelle del giorno
     quante = cliente.stories_al_giorno - (1 if ce_datata_oggi else 0)
-    regole = [(nome, g, f, 1) for nome, (g, f) in cliente.mazzi_story.items()]
+    regole = []
+    for nome, (g, f) in cliente.mazzi_story.items():
+        dal, al = cliente.periodi_mazzi.get(nome, (None, None))
+        if (dal and oggi < dal) or (al and oggi > al):
+            continue  # fuori dal periodo del mazzo
+        regole.append((nome, g, f, 1))
     regole.append(("", cliente.giorni_story, cliente.fascia_story, cliente.stories_al_giorno))
     if quante > 0:
         for nome, giorni, fascia, n in regole:

@@ -240,3 +240,24 @@ def test_due_stories_al_giorno_diverse(radice):
     assert len(usate) == 2 and len(set(usate)) == 2
     st = json.loads((radice / "state" / "rigenera-lab-stories.json").read_text())
     assert set(st["giorni"]) == {"2026-11-18", "2026-11-18#2"}
+
+
+def test_mazzo_esce_in_aggiunta_alla_scorta(radice):
+    cfg = radice / "config" / "clienti.json"
+    dati = json.loads(cfg.read_text())
+    dati["rigenera-lab"].update({
+        "fascia_story": [14, 21], "stories_al_giorno": 2,
+        "mazzi_story": {"01-gift": {"giorni": [3], "fascia": [11, 13], "dal": "2026-11-14", "al": "2026-12-22"}},
+    })
+    cfg.write_text(json.dumps(dati))
+    scorta(radice, 4)
+    g = radice / "outbox" / "rigenera-lab" / "stories-scorta" / "01-gift"
+    g.mkdir()
+    Image.new("RGB", (5, 5)).save(g / "gift.jpg")
+    f = Finto()
+    for t in ("11:00", "12:30", "14:00", "17:30", "20:30"):
+        assert esegui(radice, "2026-11-19T" + t, f) == 0
+    usate = [c[1] for c in f.calls if c[0] == "ig_story"]
+    assert len(usate) == 3 and sum("01-gift" in u for u in usate) == 1
+    f = Finto()
+    assert esegui(radice, "2026-12-24T11:30", f) == 0 and f.calls == []

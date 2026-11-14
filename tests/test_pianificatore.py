@@ -151,3 +151,21 @@ def test_due_al_giorno_con_datata_ne_esce_una_sola_dalla_scorta(tmp_path):
     _story_datata(tmp_path, "2026-11-18_10-12_evento.jpg")
     d = cosa_e_dovuto(DUE_AL_GIORNO, tmp_path, ora("2026-11-18T20:00"))
     assert d.story_da_scorta and d.turno_scorta == 0
+
+
+GIFT = Cliente(
+    "benessere", "1", "2", [0, 1, 2, 3, 4], (14, 21),
+    {"01-gift-card": ([3], (11, 13))}, stories_al_giorno=2,
+    periodi_mazzi={"01-gift-card": (date(2026, 11, 14), date(2026, 12, 22))},
+)
+
+
+def test_mazzo_con_periodo(tmp_path):
+    # giovedì 19/11 dentro il periodo; giovedì 24/12 fuori
+    d = cosa_e_dovuto(GIFT, tmp_path, ora("2026-11-19T11:30"))
+    assert d.story_da_scorta and d.mazzo_scorta == "01-gift-card"
+    d = cosa_e_dovuto(GIFT, tmp_path, ora("2026-12-24T11:30"))
+    assert not d.story_da_scorta
+    # nel pomeriggio dello stesso giovedì esce la scorta generale
+    d = cosa_e_dovuto(GIFT, tmp_path, ora("2026-11-19T15:00"))
+    assert d.story_da_scorta and d.mazzo_scorta == ""

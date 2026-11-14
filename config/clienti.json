@@ -56,7 +56,20 @@
       14,
       21
     ],
-    "stories_al_giorno": 2
+    "stories_al_giorno": 2,
+    "mazzi_story": {
+      "01-gift-card": {
+        "giorni": [
+          3
+        ],
+        "fascia": [
+          11,
+          13
+        ],
+        "dal": "2026-11-14",
+        "al": "2026-12-22"
+      }
+    }
   },
   "arcamed": {
     "page_id": "563627913490059",
