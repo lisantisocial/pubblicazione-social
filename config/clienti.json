@@ -11,11 +11,28 @@
   "rigenera-active": {
     "page_id": "103243688092892",
     "ig_user_id": "17841436962682521",
-    "giorni_story": [],
+    "giorni_story": [
+      0,
+      2,
+      3
+    ],
     "fascia_story": [
-      10,
-      15
-    ]
+      16,
+      21
+    ],
+    "mazzi_story": {
+      "bagno-di-gong": {
+        "giorni": [
+          1
+        ],
+        "fascia": [
+          16,
+          21
+        ],
+        "dal": "2026-11-17",
+        "al": "2026-12-04"
+      }
+    }
   },
   "trattoria-la-brasera": {
     "page_id": "266404753507308",
