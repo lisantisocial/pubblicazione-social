@@ -47,7 +47,25 @@
       "file": "PXL_20261029_181744799.jpg",
       "ig": "18134971372751825",
       "fb": "3026987574311424"
+    },
+    "2026-11-17@bagno-di-gong": {
+      "file": "2026-11-16-bagno-di-gong-4-dicembre-stories.jpg",
+      "mazzo": "bagno-di-gong",
+      "ig": "17948602500086252",
+      "fb": "1861197071540805"
     }
   },
-  "datate": {}
+  "datate": {},
+  "registri": {
+    "bagno-di-gong": {
+      "mazzo": [],
+      "ultima": "2026-11-16-bagno-di-gong-4-dicembre-stories.jpg",
+      "uscite": [
+        {
+          "file": "2026-11-16-bagno-di-gong-4-dicembre-stories.jpg",
+          "data": "2026-11-17"
+        }
+      ]
+    }
+  }
 }
