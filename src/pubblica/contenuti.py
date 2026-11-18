@@ -3,7 +3,8 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-NOME_SICURO = re.compile(r"^(\d{4})-(\d{2})-(\d{2})_(\d{1,2})-(\d{1,2})_[a-z0-9-]+$")
+# fascia in ore intere (16-19) o con i minuti (1230-1530, 1630-18)
+NOME_SICURO = re.compile(r"^(\d{4})-(\d{2})-(\d{2})_(\d{1,2})(\d{2})?-(\d{1,2})(\d{2})?_[a-z0-9-]+$")
 HASHTAG = re.compile(r"#\w")
 VIDEO = {".mp4", ".mov"}
 
@@ -16,7 +17,7 @@ class ContenutoNonValido(Exception):
 class Contenuto:
     cartella: Path
     data: date
-    fascia: tuple[int, int]
+    fascia: tuple[float, float]
     media: list[Path]
     video: bool
     cover: Path | None
@@ -27,16 +28,21 @@ class Contenuto:
 class StoryDatata:
     file: Path
     data: date
-    fascia: tuple[int, int]
+    fascia: tuple[float, float]
 
 
-def _data_e_fascia(nome: str) -> tuple[date, tuple[int, int]]:
+def _data_e_fascia(nome: str) -> tuple[date, tuple[float, float]]:
     m = NOME_SICURO.match(nome)
     if not m:
         raise ContenutoNonValido(
             f"il nome «{nome}» non è corretto: serve AAAA-MM-GG_16-19_titolo-in-minuscolo-con-trattini"
         )
-    a, mese, g, i, f = (int(x) for x in m.groups())
+    a, mese, g, hi, mi, hf, mf = (int(x) if x else 0 for x in m.groups())
+    if mi > 59 or mf > 59:
+        raise ContenutoNonValido(f"i minuti nel nome «{nome}» non sono validi")
+    i, f = hi + mi / 60, hf + mf / 60
+    if i % 1 == 0 and f % 1 == 0:
+        i, f = int(i), int(f)
     try:
         return date(a, mese, g), (i, f)
     except ValueError:

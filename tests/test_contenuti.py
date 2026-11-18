@@ -90,3 +90,12 @@ def test_story_datata(tmp_path):
     _img(f)
     s = leggi_story_datata(f)
     assert s.data == date(2026, 12, 8) and s.fascia == (10, 15) and s.file == f
+
+
+def test_fascia_con_i_minuti(tmp_path):
+    from pubblica.contenuti import _data_e_fascia
+    assert _data_e_fascia("2026-11-18_1230-1530_prova")[1] == (12.5, 15.5)
+    assert _data_e_fascia("2026-11-23_1630-18_prova")[1] == (16.5, 18)
+    assert _data_e_fascia("2026-11-18_16-19_prova")[1] == (16, 19)
+    with pytest.raises(ContenutoNonValido):
+        _data_e_fascia("2026-11-18_1275-15_prova")
