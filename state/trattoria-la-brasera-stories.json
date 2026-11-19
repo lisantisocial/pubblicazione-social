@@ -1,7 +1,6 @@
 {
   "registro": {
     "mazzo": [
-      "post-antipasti-23.jpg",
       "20231108_200704.jpg",
       "IMG20241113202922.jpg",
       "77.jpg",
@@ -95,11 +94,15 @@
       "20231108_210050.jpg",
       "IMG20241113192645.jpg"
     ],
-    "ultima": "DSC09939.jpg",
+    "ultima": "post-antipasti-23.jpg",
     "uscite": [
       {
         "file": "DSC09939.jpg",
         "data": "2026-11-18"
+      },
+      {
+        "file": "post-antipasti-23.jpg",
+        "data": "2026-11-19"
       }
     ]
   },
@@ -126,6 +129,11 @@
       "file": "DSC09939.jpg",
       "ig": "18073703114794796",
       "fb": "2489199278553688"
+    },
+    "2026-11-19": {
+      "file": "post-antipasti-23.jpg",
+      "ig": "18382052035241991",
+      "fb": "1440000168288459"
     }
   },
   "datate": {},
