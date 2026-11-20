@@ -6,6 +6,8 @@ from pathlib import Path
 # fascia in ore intere (16-19) o con i minuti (1230-1530, 1630-18)
 NOME_SICURO = re.compile(r"^(\d{4})-(\d{2})-(\d{2})_(\d{1,2})(\d{2})?-(\d{1,2})(\d{2})?_[a-z0-9-]+$")
 HASHTAG = re.compile(r"#\w")
+# unica eccezione (Lisa, 2026-11-18): l'apertura della rubrica dei post "lavori" di Studio Dinamo
+CONSENTITI = re.compile(r"#Progetti_Dinamo\b")
 VIDEO = {".mp4", ".mov"}
 
 
@@ -57,7 +59,7 @@ def leggi_contenuto(cartella: Path) -> Contenuto:
     if not testo_file.exists():
         raise ContenutoNonValido(f"{cartella.name}: manca il file testo.txt")
     testo = testo_file.read_bytes().decode("utf-8")
-    if HASHTAG.search(testo):
+    if HASHTAG.search(CONSENTITI.sub("", testo)):
         raise ContenutoNonValido(f"{cartella.name}: il testo contiene un hashtag, non esce")
 
     immagini, video, cover = [], [], None

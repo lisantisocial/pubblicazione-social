@@ -68,10 +68,15 @@ def test_11_immagini_rifiutato(tmp_path):
         leggi_contenuto(c)
 
 
-@pytest.mark.parametrize("testo", ["Ciao #salute", "#uno"])
+@pytest.mark.parametrize("testo", ["Ciao #salute", "#uno", "#Progetti_Dinamo 🏗️ Area Edilizia #casa"])
 def test_hashtag_rifiutato(tmp_path, testo):
     with pytest.raises(ContenutoNonValido, match="hashtag"):
         leggi_contenuto(_cartella(tmp_path, testo=testo))
+
+
+def test_progetti_dinamo_consentito(tmp_path):
+    testo = "#Progetti_Dinamo 🏗️ Area Edilizia\n\n📍 Toscolano Maderno (BS)\n"
+    assert leggi_contenuto(_cartella(tmp_path, testo=testo)).testo == testo
 
 
 def test_nome_non_sicuro_rifiutato(tmp_path):

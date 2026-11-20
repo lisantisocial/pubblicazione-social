@@ -31,10 +31,13 @@ def test_abbina_non_sceglie_tra_due_pagine():
 
 
 def test_aggiorna_config_tiene_le_stories_esistenti_e_aggiunge_i_nuovi():
-    vecchia = {"rigenera-lab": {"page_id": "1", "ig_user_id": "ig1", "giorni_story": [0, 2], "fascia_story": [10, 15]}}
+    mazzi = {"gong": {"giorni": [1], "fascia": [16, 21]}}
+    vecchia = {"rigenera-lab": {"page_id": "1", "ig_user_id": "ig1", "giorni_story": [0, 2], "fascia_story": [10, 15],
+                                "stories_al_giorno": 2, "mazzi_story": mazzi}}
     abbinate, _, _ = abbina(PAGINE)
     nuova = aggiorna_config(vecchia, abbinate)
     assert nuova["rigenera-lab"]["giorni_story"] == [0, 2]
+    assert nuova["rigenera-lab"]["mazzi_story"] == mazzi and nuova["rigenera-lab"]["stories_al_giorno"] == 2
     assert nuova["trattoria-la-brasera"] == {"page_id": "3", "ig_user_id": "", "giorni_story": [], "fascia_story": [10, 15]}
 
 

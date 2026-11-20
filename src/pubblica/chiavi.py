@@ -66,7 +66,8 @@ def aggiorna_config(config: dict, abbinate: dict[str, dict]) -> dict:
         voce["page_id"] = p["id"]
         ig = p.get("instagram_business_account") or {}
         voce["ig_user_id"] = ig.get("id", "")
-        nuovo[slug] = {k: voce[k] for k in ("page_id", "ig_user_id", "giorni_story", "fascia_story")}
+        # le altre impostazioni (mazzi_story, stories_al_giorno…) restano com'erano
+        nuovo[slug] = voce
     return nuovo
 
 
