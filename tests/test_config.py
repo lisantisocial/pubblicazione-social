@@ -7,5 +7,5 @@ def test_carica_config_rigenera_lab():
     c = cfg["rigenera-lab"]
     assert c.slug == "rigenera-lab"
     assert c.giorni_story == []  # stories ferme finché Lisa non carica la scorta (era [0, 2, 3, 4])
-    assert c.fascia_story == (10, 15)
+    assert c.fascia_story == (7, 21)
     assert c.page_id == "1932726716776796"
