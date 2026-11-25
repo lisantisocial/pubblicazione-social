@@ -62,12 +62,13 @@ def _pubblica_contenuto(client, radice: Path, c: Contenuto, errori: list[str]) -
     file_stato = c.cartella / ".stato.json"
     stato = _leggi_json(file_stato, {})
     urls = [_url(radice, m) for m in c.media]
+    extra = {"collaboratori": c.collaboratori} if c.collaboratori else {}  # solo Instagram
     if c.video:
         cover = _url(radice, c.cover) if c.cover else None
-        ig = lambda: client.ig_reel(urls[0], cover, c.testo)
+        ig = lambda: client.ig_reel(urls[0], cover, c.testo, **extra)
         fb = lambda: client.fb_reel(urls[0], cover, c.testo)
     else:
-        ig = lambda: client.ig_post(urls, c.testo)
+        ig = lambda: client.ig_post(urls, c.testo, **extra)
         fb = lambda: client.fb_post(urls, c.testo)
     _tenta(stato, "ig", ig, errori, c.cartella.name)
     _scrivi_json(file_stato, stato)

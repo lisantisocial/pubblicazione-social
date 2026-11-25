@@ -123,3 +123,35 @@ def test_didascalia_inviata_identica():
     responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media_publish", json={"id": "m1"})
     client().ig_post(["https://x/1.jpg"], testo)
     assert corpo(responses.calls[0])["caption"] == testo
+
+
+@responses.activate
+def test_reel_con_collaboratori():
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media", json={"id": "r1"})
+    stato_ok(responses, "r1")
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media_publish", json={"id": "m3"})
+    client().ig_reel("https://x/v.mp4", None, "T", ["vasco_fiorini"])
+    assert corpo(responses.calls[0])["collaborators"] == '["vasco_fiorini"]'
+
+
+@responses.activate
+def test_carosello_collaboratori_solo_sul_contenitore_principale():
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media", json={"id": "c1"})
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media", json={"id": "c2"})
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media", json={"id": "c3"})
+    for cid in ("c1", "c2", "c3"):
+        stato_ok(responses, cid)
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media_publish", json={"id": "m2"})
+    client().ig_post(["https://x/1.jpg", "https://x/2.jpg"], "T", ["a", "b"])
+    creati = [corpo(c) for c in responses.calls if c.request.method == "POST" and c.request.url.endswith("/media")]
+    assert "collaborators" not in creati[0] and "collaborators" not in creati[1]
+    assert creati[2]["collaborators"] == '["a", "b"]'
+
+
+@responses.activate
+def test_senza_collaboratori_non_invia_il_campo():
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media", json={"id": "c1"})
+    stato_ok(responses, "c1")
+    responses.add(responses.POST, f"https://graph.facebook.com/v23.0/{IG}/media_publish", json={"id": "m1"})
+    client().ig_post(["https://x/1.jpg"], "T")
+    assert "collaborators" not in corpo(responses.calls[0])

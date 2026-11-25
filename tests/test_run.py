@@ -15,14 +15,14 @@ class Finto:
         self.calls = []
         self.falliscono = set(falliscono)
 
-    def _f(self, nome, *args):
-        self.calls.append((nome, *args))
+    def _f(self, nome, *args, **kw):
+        self.calls.append((nome, *args, *([kw] if kw else [])))
         if nome in self.falliscono:
             raise MetaError("finto errore", 17)
         return f"id-{nome}-{len(self.calls)}"
 
-    def ig_post(self, *a): return self._f("ig_post", *a)
-    def ig_reel(self, *a): return self._f("ig_reel", *a)
+    def ig_post(self, *a, **k): return self._f("ig_post", *a, **k)
+    def ig_reel(self, *a, **k): return self._f("ig_reel", *a, **k)
     def ig_story(self, *a): return self._f("ig_story", *a)
     def fb_post(self, *a): return self._f("fb_post", *a)
     def fb_reel(self, *a): return self._f("fb_reel", *a)
@@ -87,6 +87,19 @@ def test_reel_con_cover(radice):
     assert esegui(radice, "2026-11-18T17:00", f) == 0
     p = BASE + "outbox/rigenera-lab/post/2026-11-18_16-19_reel/"
     assert f.calls == [("ig_reel", p + "video.mp4", p + "cover.jpg", "T"), ("fb_reel", p + "video.mp4", p + "cover.jpg", "T")]
+
+
+def test_reel_con_collaboratori_solo_su_instagram(radice):
+    c = radice / "outbox" / "rigenera-lab" / "post" / "2026-11-18_16-19_reel"
+    c.mkdir()
+    (c / "video.mp4").write_bytes(b"v")
+    (c / "testo.txt").write_text("T")
+    (c / "collaboratori.txt").write_text("@vasco_fiorini")
+    f = Finto()
+    assert esegui(radice, "2026-11-18T17:00", f) == 0
+    p = BASE + "outbox/rigenera-lab/post/2026-11-18_16-19_reel/"
+    assert f.calls == [("ig_reel", p + "video.mp4", None, "T", {"collaboratori": ["vasco_fiorini"]}),
+                       ("fb_reel", p + "video.mp4", None, "T")]
 
 
 def test_dry_run_non_chiama_meta_e_non_sposta(radice):

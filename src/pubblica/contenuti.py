@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
@@ -9,6 +9,9 @@ HASHTAG = re.compile(r"#\w")
 # unica eccezione (Lisa, 2026-11-18): l'apertura della rubrica dei post "lavori" di Studio Dinamo
 CONSENTITI = re.compile(r"#Progetti_Dinamo\b")
 VIDEO = {".mp4", ".mov"}
+# nome utente Instagram: lettere, numeri, punto e trattino basso, massimo 30 caratteri
+NOME_UTENTE = re.compile(r"^[A-Za-z0-9._]{1,30}$")
+MAX_COLLABORATORI = 3
 
 
 class ContenutoNonValido(Exception):
@@ -24,6 +27,7 @@ class Contenuto:
     video: bool
     cover: Path | None
     testo: str
+    collaboratori: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -64,7 +68,7 @@ def leggi_contenuto(cartella: Path) -> Contenuto:
 
     immagini, video, cover = [], [], None
     for f in sorted(cartella.iterdir()):
-        if f.name in ("testo.txt", ".stato.json", ".avvisato"):
+        if f.name in ("testo.txt", "collaboratori.txt", ".stato.json", ".avvisato"):
             continue
         if f.name == "cover.jpg":
             cover = f
@@ -85,6 +89,7 @@ def leggi_contenuto(cartella: Path) -> Contenuto:
         raise ContenutoNonValido(f"{cartella.name}: un carosello può avere al massimo 10 immagini")
 
     immagini.sort(key=lambda p: int(p.stem))
+    collaboratori = _leggi_collaboratori(cartella)
     return Contenuto(
         cartella=cartella,
         data=data,
@@ -93,7 +98,28 @@ def leggi_contenuto(cartella: Path) -> Contenuto:
         video=bool(video),
         cover=cover if video else None,
         testo=testo,
+        collaboratori=collaboratori,
     )
+
+
+def _leggi_collaboratori(cartella: Path) -> list[str]:
+    """collaboratori.txt (facoltativo): un nome utente Instagram per riga, con o senza @.
+    Vengono invitati come collaboratori del post o del reel (solo Instagram)."""
+    f = cartella / "collaboratori.txt"
+    if not f.exists():
+        return []
+    nomi = []
+    for parte in re.split(r"[\s,;]+", f.read_bytes().decode("utf-8-sig")):
+        nome = parte.strip().lstrip("@")
+        if not nome:
+            continue
+        if not NOME_UTENTE.match(nome):
+            raise ContenutoNonValido(f"{cartella.name}: «{parte}» in collaboratori.txt non è un nome utente Instagram valido")
+        if nome.lower() not in (n.lower() for n in nomi):
+            nomi.append(nome)
+    if len(nomi) > MAX_COLLABORATORI:
+        raise ContenutoNonValido(f"{cartella.name}: al massimo {MAX_COLLABORATORI} collaboratori, in collaboratori.txt ce ne sono {len(nomi)}")
+    return nomi
 
 
 def leggi_story_datata(file: Path) -> StoryDatata:

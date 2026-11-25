@@ -104,3 +104,27 @@ def test_fascia_con_i_minuti(tmp_path):
     assert _data_e_fascia("2026-11-18_16-19_prova")[1] == (16, 19)
     with pytest.raises(ContenutoNonValido):
         _data_e_fascia("2026-11-18_1275-15_prova")
+
+
+def test_senza_collaboratori_lista_vuota(tmp_path):
+    assert leggi_contenuto(_cartella(tmp_path)).collaboratori == []
+
+
+def test_collaboratori_letti_con_o_senza_chiocciola(tmp_path):
+    c = _cartella(tmp_path)
+    (c / "collaboratori.txt").write_bytes("@vasco_fiorini\nstudio.dinamo, @Vasco_Fiorini\n".encode("utf-8"))
+    assert leggi_contenuto(c).collaboratori == ["vasco_fiorini", "studio.dinamo"]
+
+
+def test_collaboratore_non_valido_blocca(tmp_path):
+    c = _cartella(tmp_path)
+    (c / "collaboratori.txt").write_bytes("vasco fiorini!".encode("utf-8"))
+    with pytest.raises(ContenutoNonValido, match="nome utente"):
+        leggi_contenuto(c)
+
+
+def test_al_massimo_tre_collaboratori(tmp_path):
+    c = _cartella(tmp_path)
+    (c / "collaboratori.txt").write_bytes("a\nb\nc\nd".encode("utf-8"))
+    with pytest.raises(ContenutoNonValido, match="al massimo 3"):
+        leggi_contenuto(c)

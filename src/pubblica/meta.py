@@ -110,19 +110,28 @@ class MetaClient:
     def _ig_pubblica(self, contenitore: str) -> str:
         return self._post(f"{self.ig_user_id}/media_publish", {"creation_id": contenitore})["id"]
 
-    def ig_post(self, urls: list[str], didascalia: str) -> str:
+    @staticmethod
+    def _con_collaboratori(dati: dict, collaboratori: list[str] | None) -> dict:
+        """Invito a collaborare: Instagram vuole i nomi utente come lista JSON nel contenitore principale."""
+        if collaboratori:
+            dati["collaborators"] = json.dumps(list(collaboratori))
+        return dati
+
+    def ig_post(self, urls: list[str], didascalia: str, collaboratori: list[str] | None = None) -> str:
         if len(urls) == 1:
-            c = self._ig_crea({"image_url": urls[0], "caption": didascalia})
+            c = self._ig_crea(self._con_collaboratori({"image_url": urls[0], "caption": didascalia}, collaboratori))
         else:
             figli = [self._ig_crea({"image_url": u, "is_carousel_item": "true"}) for u in urls]
-            c = self._ig_crea({"media_type": "CAROUSEL", "children": ",".join(figli), "caption": didascalia})
+            c = self._ig_crea(self._con_collaboratori(
+                {"media_type": "CAROUSEL", "children": ",".join(figli), "caption": didascalia}, collaboratori))
         return self._ig_pubblica(c)
 
-    def ig_reel(self, video_url: str, cover_url: str | None, didascalia: str) -> str:
+    def ig_reel(self, video_url: str, cover_url: str | None, didascalia: str,
+                collaboratori: list[str] | None = None) -> str:
         dati = {"media_type": "REELS", "video_url": video_url, "caption": didascalia, "share_to_feed": "true"}
         if cover_url:
             dati["cover_url"] = cover_url
-        return self._ig_pubblica(self._ig_crea(dati))
+        return self._ig_pubblica(self._ig_crea(self._con_collaboratori(dati, collaboratori)))
 
     def ig_story(self, url: str, video: bool) -> str:
         dati = {"media_type": "STORIES", ("video_url" if video else "image_url"): url}
