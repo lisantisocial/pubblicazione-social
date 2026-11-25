@@ -2,7 +2,7 @@ name: Pubblica
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
     inputs:
       azione:
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: src
-      # Il timer (ogni 30 minuti) pubblica davvero; l'avvio a mano segue la scelta "azione"
+      # Il timer (ai minuti 7, 22, 37, 52) pubblica davvero; l'avvio a mano segue la scelta "azione"
       AZIONE: ${{ github.event_name == 'schedule' && 'pubblica' || inputs.azione }}
       # Chiavi di pagina di tutti i clienti: {"cliente": "chiave", ...} (vedi pubblica/chiavi.py)
       META_PAGE_TOKENS: ${{ secrets.META_PAGE_TOKENS }}
