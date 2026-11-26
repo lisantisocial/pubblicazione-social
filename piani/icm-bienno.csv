@@ -1,6 +1,10 @@
 ﻿data;formato;titolo;stato
-2026-11-25;post;Carpenteria idraulica manutenzioni;programmato
-2026-11-27;carosello;Bagno da ristrutturare;programmato
-2026-12-01;carosello;Carosello autogru;programmato
-2026-12-04;post;Genie SX-105 XC;programmato
-2026-12-08;carosello;Carosello Prestine vie strette;programmato
+2026-11-25;post;Carpenteria idraulica manutenzioni;uscito
+2026-11-26;post;Lavaggio impianti di riscaldamento;programmato
+2026-11-27;post;Sostituzione caldaie;programmato
+2026-12-01;carosello;Bagno da ristrutturare;programmato
+2026-12-04;carosello;Carosello autogru;programmato
+2026-12-08;post;Genie SX-105 XC;programmato
+2026-12-11;carosello;Carosello Prestine vie strette;programmato
+2026-12-15;carosello;Carpenteria in officina: saldatura;programmato
+2026-12-18;carosello;Carpenteria in officina: carroponte e scintille;programmato

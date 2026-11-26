@@ -122,6 +122,28 @@
       21
     ],
     "page_id": "189854900887073",
-    "ig_user_id": "17841458920780573"
+    "ig_user_id": "17841458920780573",
+    "mazzi_story": {
+      "lavaggio-impianti": {
+        "giorni": [
+          0,
+          3
+        ],
+        "fascia": [
+          7,
+          21
+        ]
+      },
+      "sostituzione-caldaie": {
+        "giorni": [
+          1,
+          4
+        ],
+        "fascia": [
+          7,
+          21
+        ]
+      }
+    }
   }
 }
