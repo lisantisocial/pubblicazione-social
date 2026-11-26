@@ -176,20 +176,29 @@
       "file": "e-1.mp4",
       "ig": "18120058886517183",
       "fb": "1569893404898996"
+    },
+    "2026-11-26@01-gift-card": {
+      "file": "chatgpt-image-21-set-2026-16-30-47.jpg",
+      "mazzo": "01-gift-card",
+      "ig": "17913198708667157",
+      "fb": "1692770372222587"
     }
   },
   "datate": {},
   "registri": {
     "01-gift-card": {
       "mazzo": [
-        "chatgpt-image-21-set-2026-16-30-47.jpg",
         "chatgpt-image-21-set-2026-16-17-08.jpg"
       ],
-      "ultima": "chatgpt-image-21-set-2026-10-43-48.jpg",
+      "ultima": "chatgpt-image-21-set-2026-16-30-47.jpg",
       "uscite": [
         {
           "file": "chatgpt-image-21-set-2026-10-43-48.jpg",
           "data": "2026-11-19"
+        },
+        {
+          "file": "chatgpt-image-21-set-2026-16-30-47.jpg",
+          "data": "2026-11-26"
         }
       ]
     }

@@ -1,0 +1,28 @@
+{
+  "registro": {
+    "mazzo": [],
+    "ultima": null,
+    "uscite": []
+  },
+  "giorni": {
+    "2026-11-26@lavaggio-impianti": {
+      "file": "lavaggio-impianti-stories.jpg",
+      "mazzo": "lavaggio-impianti",
+      "ig": "18101836019426747",
+      "fb": "1520485053368033"
+    }
+  },
+  "datate": {},
+  "registri": {
+    "lavaggio-impianti": {
+      "mazzo": [],
+      "ultima": "lavaggio-impianti-stories.jpg",
+      "uscite": [
+        {
+          "file": "lavaggio-impianti-stories.jpg",
+          "data": "2026-11-26"
+        }
+      ]
+    }
+  }
+}
