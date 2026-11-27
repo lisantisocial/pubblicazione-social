@@ -10,6 +10,12 @@
       "mazzo": "lavaggio-impianti",
       "ig": "18101836019426747",
       "fb": "1520485053368033"
+    },
+    "2026-11-27@sostituzione-caldaie": {
+      "file": "sostituzione-caldaie-stories.jpg",
+      "mazzo": "sostituzione-caldaie",
+      "ig": "17917093707574692",
+      "fb": "999646069722339"
     }
   },
   "datate": {},
@@ -21,6 +27,16 @@
         {
           "file": "lavaggio-impianti-stories.jpg",
           "data": "2026-11-26"
+        }
+      ]
+    },
+    "sostituzione-caldaie": {
+      "mazzo": [],
+      "ultima": "sostituzione-caldaie-stories.jpg",
+      "uscite": [
+        {
+          "file": "sostituzione-caldaie-stories.jpg",
+          "data": "2026-11-27"
         }
       ]
     }
